@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -17,10 +16,35 @@ pipeline {
             }
         }
 
+        stage('Test') {
+            steps {
+                sh 'npm test'
+            }
+        }
+
         stage('Deploy to Render') {
             steps {
-                echo 'Deployment will be triggered through Render.'
+                withCredentials([string(
+                    credentialsId: 'renderhook',
+                    variable: 'RENDER_DEPLOY_HOOK'
+                )]) {
+                    sh 'curl --fail --silent --show-error -X POST "$RENDER_DEPLOY_HOOK"'
+                }
             }
+        }
+    }
+    post {
+        failure {
+            emailext(
+                to: 'kipropcollins81@gmail.com',
+                subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """The Jenkins pipeline has failed.
+
+Job: ${env.JOB_NAME}
+Build: #${env.BUILD_NUMBER}
+Console: ${env.BUILD_URL}console
+"""
+            )
         }
     }
 }

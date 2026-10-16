@@ -25,7 +25,7 @@ pipeline {
         stage('Deploy to Render') {
             steps {
                 withCredentials([string(
-                    credentialsId: 'renderhook',
+                    credentialsId: 'render_deploy_hook',
                     variable: 'RENDER_DEPLOY_HOOK'
                 )]) {
                     sh 'curl --fail --silent --show-error -X POST "$RENDER_DEPLOY_HOOK"'

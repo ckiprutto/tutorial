@@ -8,14 +8,18 @@ let Image = require('../models/images');
 
 var db = []
 
-router.get('/', (req,res)=>{
-    
-    Image.find({}, function(err, images){
-        // console.log(images)
-        if (err) console.log(err);
-        res.render('index',{images:images, msg: req.query.msg })
-    })
-})
+router.get('/', async (req, res) => {
+    try {
+        const images = await Image.find({});
+        res.render('index', {
+            images: images,
+            msg: req.query.msg
+        });
+    } catch (err) {
+        console.error('Error fetching images:', err.message);
+        res.status(500).send('Failed to load images');
+    }
+});
 
 router.post('/upload', (req, res)=>{
     upload(req,res, (err)=>{
